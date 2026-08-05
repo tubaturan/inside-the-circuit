@@ -28,6 +28,7 @@
 
 ## Presentation and performance
 
+- [x] Start flow includes a mission briefing, system story, objectives and responsive circuit map.
 - [x] Flutter overlays provide the menu, HUD, pause and game-over UI.
 - [x] Responsive game bounds are calculated from the viewport; no fixed device resolution is assumed.
 - [x] Programmatic PCB background, hazard telegraphs, trails, particles and shield feedback are lightweight.

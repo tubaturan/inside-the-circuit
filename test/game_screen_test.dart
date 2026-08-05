@@ -23,6 +23,14 @@ void main() {
     await tester.tap(find.text('START SYSTEM'));
     await tester.pump();
 
+    expect(find.text('MISSION BRIEFING'), findsOneWidget);
+    expect(find.text('THE CORE IS FAILING'), findsOneWidget);
+    expect(find.text('CORE'), findsOneWidget);
+
+    await tester.ensureVisible(find.text('ENTER CIRCUIT'));
+    await tester.tap(find.text('ENTER CIRCUIT'));
+    await tester.pump();
+
     expect(find.byType(GameWidget<CircuitGame>), findsOneWidget);
     expect(find.text('0'), findsNWidgets(2));
     expect(find.text('LEVEL 1'), findsOneWidget);
@@ -37,6 +45,9 @@ void main() {
     await tester.pumpWidget(const ProviderScope(child: InsideCircuitApp()));
     await tester.pump();
     await tester.tap(find.text('START SYSTEM'));
+    await tester.pump();
+    await tester.ensureVisible(find.text('ENTER CIRCUIT'));
+    await tester.tap(find.text('ENTER CIRCUIT'));
     await tester.pump();
 
     tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
@@ -61,6 +72,9 @@ void main() {
     await tester.pump();
 
     await tester.tap(find.text('START SYSTEM'));
+    await tester.pump();
+    await tester.ensureVisible(find.text('ENTER CIRCUIT'));
+    await tester.tap(find.text('ENTER CIRCUIT'));
     await tester.pump();
 
     expect(find.byType(GameWidget<CircuitGame>), findsOneWidget);

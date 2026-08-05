@@ -4,6 +4,8 @@ Mobil cihazlar için Flutter ve Flame ile geliştirilen top-down survival / endl
 
 Oyuncu, arızalanan bir devre üzerinde hareket eden elektrik sinyalini kontrol eder. Electron toplayarak puan kazanır, Capacitor ile geçici shield etkinleştirir ve gittikçe hızlanan elektrik tehlikelerinden kaçınır.
 
+`START SYSTEM` sonrasında açılan Mission Briefing, çökmekte olan sistemin hikâyesini, devre haritasını ve oyuncunun görevlerini tanıtır.
+
 ## Kontroller
 
 - Ekranda herhangi bir noktaya dokunup sürükleyerek sinyali hareket ettirin.
