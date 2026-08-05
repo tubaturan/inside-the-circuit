@@ -57,6 +57,14 @@ class FlameGameAudioManager implements AudioManager {
     GameSound.levelUp: 'level_up.wav',
     GameSound.gameOver: 'game_over.wav',
   };
+  static const _volumes = <GameSound, double>{
+    GameSound.gameStart: .42,
+    GameSound.electronCollected: .34,
+    GameSound.shieldActivated: .4,
+    GameSound.shieldConsumed: .36,
+    GameSound.levelUp: .42,
+    GameSound.gameOver: .4,
+  };
   static const _musicAsset = 'circuit_pulse_loop.wav';
   static bool _bgmInitialized = false;
 
@@ -74,7 +82,7 @@ class FlameGameAudioManager implements AudioManager {
 
   @override
   void play(GameSound sound) {
-    unawaited(_playSafely(_assets[sound]!));
+    unawaited(_playSafely(_assets[sound]!, _volumes[sound]!));
   }
 
   @override
@@ -97,9 +105,9 @@ class FlameGameAudioManager implements AudioManager {
     unawaited(_runSafely(FlameAudio.bgm.stop));
   }
 
-  Future<void> _playSafely(String asset) async {
+  Future<void> _playSafely(String asset, double volume) async {
     try {
-      await FlameAudio.play(asset, volume: .68);
+      await FlameAudio.play(asset, volume: volume);
     } catch (_) {
       // Audio must never interrupt gameplay on an unsupported device.
     }
@@ -111,7 +119,7 @@ class FlameGameAudioManager implements AudioManager {
         FlameAudio.bgm.initialize();
         _bgmInitialized = true;
       }
-      await FlameAudio.bgm.play(_musicAsset, volume: .2);
+      await FlameAudio.bgm.play(_musicAsset, volume: .11);
     } catch (_) {
       // Music support is optional on the active platform.
     }
