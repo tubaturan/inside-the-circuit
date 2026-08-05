@@ -4,6 +4,8 @@ import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
+import 'package:inside_the_circuit/game/components/circuit_background.dart';
+import 'package:inside_the_circuit/game/components/collection_particle.dart';
 import 'package:inside_the_circuit/game/components/collectibles.dart';
 import 'package:inside_the_circuit/game/components/hazards.dart';
 import 'package:inside_the_circuit/game/components/player_signal.dart';
@@ -40,7 +42,7 @@ class CircuitGame extends FlameGame with HasCollisionDetection, PanDetector {
   @override
   Future<void> onLoad() async {
     await super.onLoad();
-    await add(_CircuitBackground());
+    await add(CircuitBackground());
     _startFreshSession();
   }
 
@@ -177,7 +179,7 @@ class CircuitGame extends FlameGame with HasCollisionDetection, PanDetector {
     final target = type == HazardType.electricSpark
         ? _randomInteriorPosition()
         : playerPosition.clone();
-    add(Hazard(
+    add(createHazard(
       type: type,
       position: origin,
       velocity: velocityToward(
@@ -195,6 +197,12 @@ class CircuitGame extends FlameGame with HasCollisionDetection, PanDetector {
       position: _randomInteriorPosition(margin: 28),
       isPlaying: () => session.phase == GamePhase.playing,
       onCollected: (collectible) {
+        add(CollectionBurst(
+          position: collectible.position.clone(),
+          color: collectible.type == CollectibleType.electron
+              ? GameplayConfig.cyan
+              : const Color(0xFFB7FF5A),
+        ));
         if (collectible.type == CollectibleType.electron) {
           session.collectElectron();
         } else {
@@ -235,21 +243,5 @@ class CircuitGame extends FlameGame with HasCollisionDetection, PanDetector {
   void _notify() {
     _lastDisplayedScore = session.score;
     onSessionChanged(session);
-  }
-}
-
-class _CircuitBackground extends Component {
-  final Paint _linePaint = Paint()
-    ..color = GameplayConfig.cyan.withOpacity(.08)
-    ..strokeWidth = 1;
-
-  @override
-  void render(Canvas canvas) {
-    for (var x = 20.0; x < 800; x += 64) {
-      canvas.drawLine(Offset(x, 0), Offset(x, 1600), _linePaint);
-    }
-    for (var y = 100.0; y < 1600; y += 80) {
-      canvas.drawLine(Offset(0, y), Offset(800, y), _linePaint);
-    }
   }
 }
