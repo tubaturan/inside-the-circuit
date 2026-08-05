@@ -25,6 +25,10 @@ void main() {
 
     expect(find.byType(GameWidget<CircuitGame>), findsOneWidget);
     expect(find.text('SIGNAL 0'), findsOneWidget);
+    expect(
+      tester.getSize(find.byType(GameWidget<CircuitGame>)).width,
+      closeTo(520, 2),
+    );
   });
 
   testWidgets('backgrounding a playing game requires explicit continue',

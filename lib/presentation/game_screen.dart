@@ -55,21 +55,26 @@ class _GameScreenState extends ConsumerState<GameScreen>
     }
 
     return Scaffold(
-      body: Stack(
-        children: [
-          Positioned.fill(child: GameWidget(game: game)),
-          if (_phase == GamePhase.playing)
-            _Hud(score: _score, shielded: _shielded, onPause: game.pauseGame),
-          if (_phase == GamePhase.paused)
-            _PauseOverlay(onContinue: game.continueGame, onMenu: _returnToMenu),
-          if (_phase == GamePhase.gameOver)
-            _GameOverOverlay(
-              score: _score,
-              highScore: highScore,
-              onRestart: game.startNewGame,
-              onMenu: _returnToMenu,
-            ),
-        ],
+      body: _CircuitFrame(
+        child: Stack(
+          children: [
+            Positioned.fill(child: GameWidget(game: game)),
+            if (_phase == GamePhase.playing)
+              _Hud(score: _score, shielded: _shielded, onPause: game.pauseGame),
+            if (_phase == GamePhase.paused)
+              _PauseOverlay(
+                onContinue: game.continueGame,
+                onMenu: _returnToMenu,
+              ),
+            if (_phase == GamePhase.gameOver)
+              _GameOverOverlay(
+                score: _score,
+                highScore: highScore,
+                onRestart: game.startNewGame,
+                onMenu: _returnToMenu,
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -103,6 +108,51 @@ class _GameScreenState extends ConsumerState<GameScreen>
       _shielded = false;
     });
   }
+}
+
+class _CircuitFrame extends StatelessWidget {
+  const _CircuitFrame({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => DecoratedBox(
+        decoration: const BoxDecoration(
+          gradient: RadialGradient(
+            radius: 1.15,
+            colors: [Color(0xFF102B3A), Color(0xFF02050C)],
+          ),
+        ),
+        child: SafeArea(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final width =
+                  constraints.maxWidth > 620 ? 520.0 : constraints.maxWidth;
+              return Center(
+                child: Container(
+                  width: width,
+                  height: constraints.maxHeight,
+                  decoration: BoxDecoration(
+                    border: Border.symmetric(
+                      vertical: BorderSide(
+                        color: const Color(0xFF39F5FF).withOpacity(.28),
+                      ),
+                    ),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Color(0x6600DDE8),
+                        blurRadius: 30,
+                        spreadRadius: 2,
+                      ),
+                    ],
+                  ),
+                  child: ClipRect(child: child),
+                ),
+              );
+            },
+          ),
+        ),
+      );
 }
 
 class _MainMenu extends StatelessWidget {

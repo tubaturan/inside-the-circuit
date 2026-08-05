@@ -65,4 +65,20 @@ void main() {
     expect(player.position.x, lessThan(200));
     expect(player.position.y, lessThan(700));
   });
+
+  test('hazard telegraphs its trajectory before moving', () {
+    final hazard = ShortCircuit(
+      position: Vector2(20, 100),
+      velocity: Vector2(100, 0),
+      bounds: bounds,
+    );
+    hazard.update(.64);
+    expect(hazard.position, Vector2(20, 100));
+    expect(hazard.isTelegraphing, isTrue);
+
+    hazard.update(.02);
+    hazard.update(.1);
+    expect(hazard.isTelegraphing, isFalse);
+    expect(hazard.position.x, greaterThan(20));
+  });
 }

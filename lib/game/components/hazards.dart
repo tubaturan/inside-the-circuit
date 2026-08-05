@@ -23,8 +23,10 @@ abstract class Hazard extends PositionComponent with HazardMarker {
 
   final Vector2 velocity;
   final PlayfieldBounds Function() bounds;
+  double _telegraphRemaining = GameplayConfig.enemyTelegraphDuration;
   HazardType get type;
   double get hitboxScale;
+  bool get isTelegraphing => _telegraphRemaining > 0;
 
   @override
   Future<void> onLoad() async {
@@ -36,6 +38,10 @@ abstract class Hazard extends PositionComponent with HazardMarker {
   @override
   void update(double dt) {
     super.update(dt);
+    if (_telegraphRemaining > 0) {
+      _telegraphRemaining = math.max(0, _telegraphRemaining - dt);
+      return;
+    }
     position += velocity * dt;
     final area = bounds();
     const margin = 90.0;
@@ -45,6 +51,26 @@ abstract class Hazard extends PositionComponent with HazardMarker {
         position.y > area.bottom + margin) {
       removeFromParent();
     }
+  }
+
+  @override
+  void render(Canvas canvas) {
+    if (!isTelegraphing || velocity.length2 == 0) return;
+    final center = Offset(size.x / 2, size.y / 2);
+    final direction = velocity.normalized();
+    final end = center + Offset(direction.x, direction.y) * 150;
+    final opacity =
+        (_telegraphRemaining / GameplayConfig.enemyTelegraphDuration)
+            .clamp(0.15, .7)
+            .toDouble();
+    canvas.drawLine(
+      center,
+      end,
+      Paint()
+        ..color = GameplayConfig.danger.withOpacity(opacity)
+        ..strokeWidth = 2
+        ..strokeCap = StrokeCap.round,
+    );
   }
 }
 
@@ -62,6 +88,7 @@ class ShortCircuit extends Hazard {
 
   @override
   void render(Canvas canvas) {
+    super.render(canvas);
     final paint = Paint()
       ..color = GameplayConfig.danger
       ..strokeWidth = 4
@@ -93,6 +120,7 @@ class ElectricSpark extends Hazard {
 
   @override
   void render(Canvas canvas) {
+    super.render(canvas);
     final path = Path()
       ..moveTo(size.x * .1, size.y * .55)
       ..lineTo(size.x * .48, size.y * .1)
@@ -124,6 +152,7 @@ class OverheatedChip extends Hazard {
 
   @override
   void render(Canvas canvas) {
+    super.render(canvas);
     final rect = RRect.fromRectAndRadius(
       Offset.zero & Size(size.x, size.y),
       const Radius.circular(8),
