@@ -89,6 +89,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
     final game = CircuitGame(
       onSessionChanged: _onSessionChanged,
       onGameOver: (score) => ref.read(highScoreProvider.notifier).submit(score),
+      soundEnabled: () => ref.read(soundEnabledProvider).value ?? true,
     );
     setState(() {
       _game = game;

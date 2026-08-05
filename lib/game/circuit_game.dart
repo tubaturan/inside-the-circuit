@@ -14,16 +14,21 @@ import 'package:inside_the_circuit/game/gameplay_config.dart';
 import 'package:inside_the_circuit/game/playfield_bounds.dart';
 import 'package:inside_the_circuit/game/systems/difficulty_system.dart';
 import 'package:inside_the_circuit/game/systems/spawn_schedule.dart';
+import 'package:inside_the_circuit/services/audio_manager.dart';
 
 class CircuitGame extends FlameGame with HasCollisionDetection, PanDetector {
   CircuitGame({
     required this.onSessionChanged,
     required this.onGameOver,
+    this.audioManager = const SilentAudioManager(),
+    this.soundEnabled = _soundOn,
     Random? random,
   }) : random = random ?? Random();
 
   final void Function(GameSession session) onSessionChanged;
   final void Function(int score) onGameOver;
+  final AudioManager audioManager;
+  final bool Function() soundEnabled;
   final Random random;
   final GameSession session = GameSession();
   late final SpawnSchedule _spawnSchedule = SpawnSchedule(random: random);
@@ -42,8 +47,10 @@ class CircuitGame extends FlameGame with HasCollisionDetection, PanDetector {
   @override
   Future<void> onLoad() async {
     await super.onLoad();
+    await audioManager.preload();
     await add(CircuitBackground(gameSize: () => size));
     _startFreshSession();
+    _play(GameSound.gameStart);
   }
 
   @override
@@ -105,6 +112,7 @@ class CircuitGame extends FlameGame with HasCollisionDetection, PanDetector {
   void startNewGame() {
     resumeEngine();
     _startFreshSession();
+    _play(GameSound.gameStart);
   }
 
   void pauseGame() {
@@ -163,10 +171,12 @@ class CircuitGame extends FlameGame with HasCollisionDetection, PanDetector {
         position: impactPosition,
         color: GameplayConfig.cyan,
       ));
+      _play(GameSound.shieldConsumed);
       _notify();
       return;
     }
     session.phase = GamePhase.gameOver;
+    _play(GameSound.gameOver);
     pauseEngine();
     _notify();
     onGameOver(session.score);
@@ -210,8 +220,10 @@ class CircuitGame extends FlameGame with HasCollisionDetection, PanDetector {
         ));
         if (collectible.type == CollectibleType.electron) {
           session.collectElectron();
+          _play(GameSound.electronCollected);
         } else {
           session.activateShield();
+          _play(GameSound.shieldActivated);
         }
         _notify();
       },
@@ -236,7 +248,13 @@ class CircuitGame extends FlameGame with HasCollisionDetection, PanDetector {
     _lastShielded = session.hasShield;
     onSessionChanged(session);
   }
+
+  void _play(GameSound sound) {
+    if (soundEnabled()) audioManager.play(sound);
+  }
 }
+
+bool _soundOn() => true;
 
 Vector2 fairEdgeSpawnPosition({
   required PlayfieldBounds bounds,
