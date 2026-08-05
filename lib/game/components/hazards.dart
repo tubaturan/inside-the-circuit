@@ -3,7 +3,7 @@ import 'dart:math' as math;
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
-import 'package:inside_the_circuit/game/components/player_signal.dart';
+import 'package:inside_the_circuit/game/collisions/collision_markers.dart';
 import 'package:inside_the_circuit/game/gameplay_config.dart';
 import 'package:inside_the_circuit/game/playfield_bounds.dart';
 

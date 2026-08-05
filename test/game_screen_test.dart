@@ -6,6 +6,8 @@ import 'package:shared_preferences_platform_interface/in_memory_shared_preferenc
 import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
 import 'package:inside_the_circuit/app/app.dart';
 import 'package:inside_the_circuit/game/circuit_game.dart';
+import 'package:inside_the_circuit/presentation/game_controller.dart';
+import 'package:inside_the_circuit/services/audio_manager.dart';
 
 void main() {
   setUp(() {
@@ -14,14 +16,14 @@ void main() {
   });
 
   testWidgets('starts the Flame game from the main menu', (tester) async {
-    await tester.pumpWidget(const ProviderScope(child: InsideCircuitApp()));
+    await tester.pumpWidget(_testApp());
     await tester.pump();
 
     expect(find.text('INSIDE THE\nCIRCUIT'), findsOneWidget);
     expect(find.text('START SYSTEM'), findsOneWidget);
 
     await tester.tap(find.text('START SYSTEM'));
-    await tester.pump();
+    await tester.pumpAndSettle();
 
     expect(find.text('MISSION BRIEFING'), findsOneWidget);
     expect(find.text('THE CORE IS FAILING'), findsOneWidget);
@@ -42,10 +44,10 @@ void main() {
 
   testWidgets('backgrounding a playing game requires explicit continue',
       (tester) async {
-    await tester.pumpWidget(const ProviderScope(child: InsideCircuitApp()));
+    await tester.pumpWidget(_testApp());
     await tester.pump();
     await tester.tap(find.text('START SYSTEM'));
-    await tester.pump();
+    await tester.pumpAndSettle();
     await tester.ensureVisible(find.text('ENTER CIRCUIT'));
     await tester.tap(find.text('ENTER CIRCUIT'));
     await tester.pump();
@@ -68,11 +70,11 @@ void main() {
   testWidgets('gameplay HUD fits a narrow mobile viewport', (tester) async {
     await tester.binding.setSurfaceSize(const Size(320, 640));
     addTearDown(() => tester.binding.setSurfaceSize(null));
-    await tester.pumpWidget(const ProviderScope(child: InsideCircuitApp()));
+    await tester.pumpWidget(_testApp());
     await tester.pump();
 
     await tester.tap(find.text('START SYSTEM'));
-    await tester.pump();
+    await tester.pumpAndSettle();
     await tester.ensureVisible(find.text('ENTER CIRCUIT'));
     await tester.tap(find.text('ENTER CIRCUIT'));
     await tester.pump();
@@ -81,3 +83,10 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 }
+
+Widget _testApp() => ProviderScope(
+      overrides: [
+        audioManagerProvider.overrideWithValue(const SilentAudioManager()),
+      ],
+      child: const InsideCircuitApp(),
+    );

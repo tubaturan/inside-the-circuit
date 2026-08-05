@@ -1,5 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inside_the_circuit/services/app_preferences.dart';
+import 'package:inside_the_circuit/services/audio_manager.dart';
+
+final audioManagerProvider = Provider<AudioManager>(
+  (ref) => const FlameGameAudioManager(),
+);
 
 final appPreferencesProvider =
     Provider<AppPreferences>((ref) => AppPreferences());

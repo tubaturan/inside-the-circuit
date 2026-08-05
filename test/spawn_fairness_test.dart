@@ -2,9 +2,9 @@ import 'dart:math';
 
 import 'package:flame/components.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:inside_the_circuit/game/circuit_game.dart';
 import 'package:inside_the_circuit/game/gameplay_config.dart';
 import 'package:inside_the_circuit/game/playfield_bounds.dart';
+import 'package:inside_the_circuit/game/systems/spawn_positions.dart';
 
 void main() {
   test('edge spawns preserve a minimum reaction distance', () {
