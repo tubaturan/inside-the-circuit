@@ -16,6 +16,10 @@ abstract final class GameplayConfig {
   static const double electronLifetime = 8;
   static const double capacitorLifetime = 6;
   static const double collectibleExpiryWarning = 2;
+  static const double collectibleSpawnMargin = 28;
+  static const double collectiblePlayerClearance = 86;
+  static const double collectibleObjectClearance = 64;
+  static const int collectibleSpawnAttempts = 32;
 
   static const double difficultyPeriod = 15;
   static const double difficultyPulseDuration = 1.8;

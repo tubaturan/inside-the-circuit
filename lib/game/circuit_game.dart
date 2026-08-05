@@ -217,9 +217,20 @@ class CircuitGame extends FlameGame with HasCollisionDetection, PanDetector {
   }
 
   void _spawnCollectible(CollectibleType type) {
+    final playerPosition = _player?.position ??
+        Vector2(playfield.left + playfield.width / 2, playfield.bottom);
+    final occupiedPositions = <Vector2>[
+      ...hazards.map((hazard) => hazard.position),
+      ...collectibles.map((collectible) => collectible.position),
+    ];
     add(Collectible(
       type: type,
-      position: _randomInteriorPosition(margin: 28),
+      position: fairCollectiblePosition(
+        bounds: playfield,
+        playerPosition: playerPosition,
+        occupiedPositions: occupiedPositions,
+        random: random,
+      ),
       isPlaying: () => session.phase == GamePhase.playing,
       onCollected: (collectible) {
         add(CollectionBurst(
@@ -304,4 +315,50 @@ Vector2 fairEdgeSpawnPosition({
           topRight.distanceTo(playerPosition)
       ? topLeft
       : topRight;
+}
+
+Vector2 fairCollectiblePosition({
+  required PlayfieldBounds bounds,
+  required Vector2 playerPosition,
+  required Iterable<Vector2> occupiedPositions,
+  required Random random,
+}) {
+  final occupied = occupiedPositions.toList(growable: false);
+  const margin = GameplayConfig.collectibleSpawnMargin;
+  Vector2? bestCandidate;
+  var bestClearance = -1.0;
+
+  for (var attempt = 0;
+      attempt < GameplayConfig.collectibleSpawnAttempts;
+      attempt++) {
+    final candidate = Vector2(
+      bounds.left +
+          margin +
+          random.nextDouble() * max(0.0, bounds.width - margin * 2),
+      bounds.top +
+          margin +
+          random.nextDouble() * max(0.0, bounds.height - margin * 2),
+    );
+    final playerClearance = candidate.distanceTo(playerPosition);
+    final objectClearance = occupied.isEmpty
+        ? double.infinity
+        : occupied
+            .map(candidate.distanceTo)
+            .reduce((nearest, value) => min(nearest, value));
+    final normalizedClearance = min(
+      playerClearance / GameplayConfig.collectiblePlayerClearance,
+      objectClearance / GameplayConfig.collectibleObjectClearance,
+    );
+
+    if (normalizedClearance > bestClearance) {
+      bestCandidate = candidate;
+      bestClearance = normalizedClearance;
+    }
+    if (playerClearance >= GameplayConfig.collectiblePlayerClearance &&
+        objectClearance >= GameplayConfig.collectibleObjectClearance) {
+      return candidate;
+    }
+  }
+
+  return bestCandidate ?? Vector2(bounds.left + margin, bounds.top + margin);
 }
