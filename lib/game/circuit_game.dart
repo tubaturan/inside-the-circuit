@@ -13,6 +13,7 @@ import 'package:inside_the_circuit/game/game_session.dart';
 import 'package:inside_the_circuit/game/gameplay_config.dart';
 import 'package:inside_the_circuit/game/playfield_bounds.dart';
 import 'package:inside_the_circuit/game/systems/difficulty_system.dart';
+import 'package:inside_the_circuit/game/systems/spawn_schedule.dart';
 
 class CircuitGame extends FlameGame with HasCollisionDetection, PanDetector {
   CircuitGame({
@@ -25,12 +26,11 @@ class CircuitGame extends FlameGame with HasCollisionDetection, PanDetector {
   final void Function(int score) onGameOver;
   final Random random;
   final GameSession session = GameSession();
+  late final SpawnSchedule _spawnSchedule = SpawnSchedule(random: random);
 
   PlayerSignal? _player;
-  double _enemyCountdown = .7;
-  double _electronCountdown = 1.2;
-  double _capacitorCountdown = 7;
   int _lastDisplayedScore = -1;
+  bool _lastShielded = false;
 
   PlayfieldBounds get playfield => PlayfieldBounds.fromGameSize(size);
   Iterable<Hazard> get hazards => children.whereType<Hazard>();
@@ -42,7 +42,7 @@ class CircuitGame extends FlameGame with HasCollisionDetection, PanDetector {
   @override
   Future<void> onLoad() async {
     await super.onLoad();
-    await add(CircuitBackground());
+    await add(CircuitBackground(gameSize: () => size));
     _startFreshSession();
   }
 
@@ -53,31 +53,28 @@ class CircuitGame extends FlameGame with HasCollisionDetection, PanDetector {
 
     session.update(dt);
     final difficulty = DifficultySnapshot.forLevel(session.difficultyLevel);
-    _enemyCountdown -= dt;
-    _electronCountdown -= dt;
-    _capacitorCountdown -= dt;
+    final spawn = _spawnSchedule.update(dt, difficulty);
 
-    if (_enemyCountdown <= 0) {
+    if (spawn.enemy) {
       if (hazards.length < difficulty.enemyLimit) _spawnHazard(difficulty);
-      _enemyCountdown +=
-          difficulty.enemyInterval * (.82 + random.nextDouble() * .36);
     }
-    if (_electronCountdown <= 0) {
+    if (spawn.electron) {
       if (_countCollectibles(CollectibleType.electron) <
           GameplayConfig.maxElectrons) {
         _spawnCollectible(CollectibleType.electron);
       }
-      _electronCountdown += GameplayConfig.electronInterval;
     }
-    if (_capacitorCountdown <= 0) {
+    if (spawn.capacitor) {
       if (_countCollectibles(CollectibleType.capacitor) <
           GameplayConfig.maxCapacitors) {
         _spawnCollectible(CollectibleType.capacitor);
       }
-      _capacitorCountdown += GameplayConfig.capacitorInterval;
     }
 
-    if (session.score != _lastDisplayedScore) _notify();
+    if (session.score != _lastDisplayedScore ||
+        session.hasShield != _lastShielded) {
+      _notify();
+    }
   }
 
   @override
@@ -134,9 +131,7 @@ class CircuitGame extends FlameGame with HasCollisionDetection, PanDetector {
   void _startFreshSession() {
     _clearGameplayComponents();
     session.reset();
-    _enemyCountdown = .7;
-    _electronCountdown = 1.2;
-    _capacitorCountdown = 7;
+    _spawnSchedule.reset();
     final player = PlayerSignal(
       position:
           Vector2(playfield.left + playfield.width / 2, playfield.bottom - 45),
@@ -150,7 +145,8 @@ class CircuitGame extends FlameGame with HasCollisionDetection, PanDetector {
   }
 
   void _clearGameplayComponents() {
-    for (final component in [...hazards, ...collectibles]) {
+    final effects = children.whereType<CollectionBurst>();
+    for (final component in [...hazards, ...collectibles, ...effects]) {
       component.removeFromParent();
     }
     _player?.removeFromParent();
@@ -242,6 +238,7 @@ class CircuitGame extends FlameGame with HasCollisionDetection, PanDetector {
 
   void _notify() {
     _lastDisplayedScore = session.score;
+    _lastShielded = session.hasShield;
     onSessionChanged(session);
   }
 }
