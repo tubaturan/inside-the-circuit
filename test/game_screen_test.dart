@@ -1,0 +1,51 @@
+import 'package:flame/game.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
+import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
+import 'package:inside_the_circuit/app/app.dart';
+import 'package:inside_the_circuit/game/circuit_game.dart';
+
+void main() {
+  setUp(() {
+    SharedPreferencesAsyncPlatform.instance =
+        InMemorySharedPreferencesAsync.empty();
+  });
+
+  testWidgets('starts the Flame game from the main menu', (tester) async {
+    await tester.pumpWidget(const ProviderScope(child: InsideCircuitApp()));
+    await tester.pump();
+
+    expect(find.text('INSIDE THE CIRCUIT'), findsOneWidget);
+    expect(find.text('START SYSTEM'), findsOneWidget);
+
+    await tester.tap(find.text('START SYSTEM'));
+    await tester.pump();
+
+    expect(find.byType(GameWidget<CircuitGame>), findsOneWidget);
+    expect(find.text('SIGNAL 0'), findsOneWidget);
+  });
+
+  testWidgets('backgrounding a playing game requires explicit continue',
+      (tester) async {
+    await tester.pumpWidget(const ProviderScope(child: InsideCircuitApp()));
+    await tester.pump();
+    await tester.tap(find.text('START SYSTEM'));
+    await tester.pump();
+
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+    await tester.pump();
+
+    expect(find.text('SYSTEM PAUSED'), findsOneWidget);
+    expect(find.text('CONTINUE'), findsOneWidget);
+
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+    await tester.pump();
+    expect(find.text('SYSTEM PAUSED'), findsOneWidget);
+
+    await tester.tap(find.text('CONTINUE'));
+    await tester.pump();
+    expect(find.text('SYSTEM PAUSED'), findsNothing);
+  });
+}
