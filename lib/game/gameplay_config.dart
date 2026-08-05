@@ -15,6 +15,7 @@ abstract final class GameplayConfig {
   static const int maxCapacitors = 1;
   static const double electronLifetime = 8;
   static const double capacitorLifetime = 6;
+  static const double collectibleExpiryWarning = 2;
 
   static const double difficultyPeriod = 15;
   static const int initialEnemyLimit = 4;
@@ -23,6 +24,7 @@ abstract final class GameplayConfig {
   static const double initialEnemyDelay = 1.8;
   static const double minimumEnemySpawnDistance = 220;
   static const double enemyTelegraphDuration = .65;
+  static const double enemyTrailLength = 34;
   static const double minimumEnemyInterval = 0.42;
   static const double intervalStep = 0.09;
   static const double initialSpeedMultiplier = 1;

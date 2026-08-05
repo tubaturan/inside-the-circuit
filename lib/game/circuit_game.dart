@@ -155,9 +155,14 @@ class CircuitGame extends FlameGame with HasCollisionDetection, PanDetector {
 
   void _handleHazardCollision(PositionComponent component) {
     if (session.phase != GamePhase.playing || component is! Hazard) return;
+    final impactPosition = component.position.clone();
     component.removeFromParent();
     if (session.hasShield) {
       session.consumeShield();
+      add(CollectionBurst(
+        position: impactPosition,
+        color: GameplayConfig.cyan,
+      ));
       _notify();
       return;
     }

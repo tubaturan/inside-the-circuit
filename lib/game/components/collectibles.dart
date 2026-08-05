@@ -66,8 +66,27 @@ class Collectible extends PositionComponent with CollisionCallbacks {
         ? GameplayConfig.cyan
         : const Color(0xFFB7FF5A);
     final radius = size.x * (.34 + .025 * math.sin(_pulse));
+    final remaining = lifetime - _age;
+    final warningProgress = remaining < GameplayConfig.collectibleExpiryWarning
+        ? (1 - remaining / GameplayConfig.collectibleExpiryWarning)
+            .clamp(0.0, 1.0)
+        : 0.0;
+    final visible = warningProgress == 0 || math.sin(_pulse * 3) > -.35;
+    if (!visible) return;
+
     canvas.drawCircle(
-        center, radius + 4, Paint()..color = color.withOpacity(.22));
+      center,
+      radius + 7 + math.sin(_pulse) * 2,
+      Paint()
+        ..color = color.withOpacity(.16)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2,
+    );
+    canvas.drawCircle(
+      center,
+      radius + 4,
+      Paint()..color = color.withOpacity(.22),
+    );
     canvas.drawCircle(center, radius, Paint()..color = color);
     if (type == CollectibleType.capacitor) {
       final paint = Paint()

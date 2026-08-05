@@ -55,9 +55,27 @@ abstract class Hazard extends PositionComponent with HazardMarker {
 
   @override
   void render(Canvas canvas) {
-    if (!isTelegraphing || velocity.length2 == 0) return;
+    if (velocity.length2 == 0) return;
     final center = Offset(size.x / 2, size.y / 2);
     final direction = velocity.normalized();
+    if (!isTelegraphing) {
+      final tail = center -
+          Offset(direction.x, direction.y) * GameplayConfig.enemyTrailLength;
+      canvas.drawLine(
+        center,
+        tail,
+        Paint()
+          ..shader = LinearGradient(
+            colors: [
+              GameplayConfig.danger.withOpacity(.42),
+              GameplayConfig.danger.withOpacity(0),
+            ],
+          ).createShader(Rect.fromPoints(center, tail))
+          ..strokeWidth = math.max(3, size.x * .16)
+          ..strokeCap = StrokeCap.round,
+      );
+      return;
+    }
     final end = center + Offset(direction.x, direction.y) * 150;
     final opacity =
         (_telegraphRemaining / GameplayConfig.enemyTelegraphDuration)

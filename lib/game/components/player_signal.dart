@@ -71,6 +71,17 @@ class PlayerSignal extends PositionComponent with CollisionCallbacks {
         ..strokeWidth = 3;
       canvas.drawCircle(
           center, size.x * (.59 + .025 * math.sin(_pulse)), shieldPaint);
+      canvas.drawArc(
+        Rect.fromCircle(center: center, radius: size.x * .68),
+        _pulse,
+        math.pi * .72,
+        false,
+        Paint()
+          ..color = Colors.white.withOpacity(.8)
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 2
+          ..strokeCap = StrokeCap.round,
+      );
     }
     canvas.drawCircle(
       center,
