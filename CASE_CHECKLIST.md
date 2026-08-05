@@ -24,7 +24,7 @@
 - [x] Main Menu and new game use one central session reset path for gameplay components and state.
 - [x] High score and sound preference survive session resets through SharedPreferences.
 - [x] Riverpod owns UI-facing high score and sound preference state.
-- [x] Audio calls are connected through a small service interface and safely remain silent without assets.
+- [x] Audio calls use a small service interface; six original effects are preloaded and failures never interrupt gameplay.
 
 ## Presentation and performance
 
@@ -34,7 +34,7 @@
 - [x] Android, iOS and web launcher icons use the Inside the Circuit artwork.
 - [x] No Flutter `Timer` drives gameplay.
 - [x] All tuning values live in `lib/game/gameplay_config.dart`.
-- [x] No runtime sprite or audio assets are currently required; the audio preload hook is ready for licensed assets.
+- [x] Runtime audio uses original synthesized WAV assets; no third-party or uncertain-license sound is included.
 
 ## Automated checks
 

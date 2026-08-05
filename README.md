@@ -20,10 +20,10 @@ floor(survivalSeconds) + electronCount * 10
 
 - `lib/game`: Flame oyunu, component'ler, session, spawn ve difficulty mantığı.
 - `lib/presentation`: Flutter overlay'leri ve Riverpod controller'ları.
-- `lib/services`: Kalıcı ayarlar ve sessiz çalışabilen audio servis arayüzü.
+- `lib/services`: Kalıcı ayarlar ve Flame Audio tabanlı ses servisi.
 - `lib/game/gameplay_config.dart`: Bütün gameplay tuning değerlerinin tek kaynağı.
 
-Gameplay zamanlaması Flame `update(dt)` döngüsünde yürütülür. Flutter `Timer` kullanılmaz. Görseller programatik hazırlanmıştır; component yapısı daha sonra sprite ve ses asset'leri eklenmesine uygundur. Lisanslı ses asset'leri eklenene kadar audio servisi güvenle sessiz çalışır ve ek bir audio dependency kullanılmaz.
+Gameplay zamanlaması Flame `update(dt)` döngüsünde yürütülür. Flutter `Timer` kullanılmaz. Görseller programatik hazırlanmıştır. Kısa ses efektleri proje için özgün olarak sentezlenmiş ve Flame Audio ile preload edilmiştir; desteklenmeyen bir audio backend gameplay'i durdurmaz.
 
 ## Çalıştırma
 

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inside_the_circuit/game/circuit_game.dart';
 import 'package:inside_the_circuit/game/game_session.dart';
 import 'package:inside_the_circuit/presentation/game_controller.dart';
+import 'package:inside_the_circuit/services/audio_manager.dart';
 
 class GameScreen extends ConsumerStatefulWidget {
   const GameScreen({super.key});
@@ -93,6 +94,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
     final game = CircuitGame(
       onSessionChanged: _onSessionChanged,
       onGameOver: (score) => ref.read(highScoreProvider.notifier).submit(score),
+      audioManager: const FlameGameAudioManager(),
       soundEnabled: () => ref.read(soundEnabledProvider).value ?? true,
     );
     setState(() {

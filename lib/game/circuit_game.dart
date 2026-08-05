@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flame/components.dart';
@@ -51,7 +52,7 @@ class CircuitGame extends FlameGame with HasCollisionDetection, PanDetector {
   @override
   Future<void> onLoad() async {
     await super.onLoad();
-    await audioManager.preload();
+    unawaited(audioManager.preload());
     await add(CircuitBackground(gameSize: () => size));
     _startFreshSession();
     _play(GameSound.gameStart);
@@ -67,6 +68,7 @@ class CircuitGame extends FlameGame with HasCollisionDetection, PanDetector {
     if (difficulty.level > _lastAnnouncedDifficulty) {
       _lastAnnouncedDifficulty = difficulty.level;
       add(DifficultyPulse(level: difficulty.level, gameSize: () => size));
+      _play(GameSound.levelUp);
     }
     final spawn = _spawnSchedule.update(dt, difficulty);
 
