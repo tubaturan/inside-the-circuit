@@ -6,7 +6,8 @@ abstract final class GameplayConfig {
   static const double bottomPadding = 12;
 
   static const double playerDiameter = 46;
-  static const double playerFollowSpeed = 14;
+  static const double playerFollowSpeed = 18;
+  static const double playerArrivalTolerance = 2;
   static const double shieldDuration = 5;
 
   static const int electronScore = 10;
@@ -19,6 +20,8 @@ abstract final class GameplayConfig {
   static const int initialEnemyLimit = 4;
   static const int maximumEnemyLimit = 12;
   static const double initialEnemyInterval = 1.35;
+  static const double initialEnemyDelay = 1.8;
+  static const double minimumEnemySpawnDistance = 220;
   static const double minimumEnemyInterval = 0.42;
   static const double intervalStep = 0.09;
   static const double initialSpeedMultiplier = 1;

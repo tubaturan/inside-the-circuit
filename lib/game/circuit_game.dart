@@ -94,7 +94,7 @@ class CircuitGame extends FlameGame with HasCollisionDetection, PanDetector {
 
   @override
   void onPanEnd(DragEndInfo info) {
-    _player?.clearTarget();
+    // Keep the last target so a quick tap is enough to dodge.
   }
 
   @override
@@ -169,9 +169,13 @@ class CircuitGame extends FlameGame with HasCollisionDetection, PanDetector {
 
   void _spawnHazard(DifficultySnapshot difficulty) {
     final type = weightedHazard(random, difficulty.level);
-    final origin = _randomEdgePosition();
     final playerPosition =
         _player?.position ?? Vector2(playfield.left, playfield.top);
+    final origin = fairEdgeSpawnPosition(
+      bounds: playfield,
+      playerPosition: playerPosition,
+      random: random,
+    );
     final target = type == HazardType.electricSpark
         ? _randomInteriorPosition()
         : playerPosition.clone();
@@ -222,23 +226,49 @@ class CircuitGame extends FlameGame with HasCollisionDetection, PanDetector {
             random.nextDouble() * (playfield.height - margin * 2),
       );
 
-  Vector2 _randomEdgePosition() {
-    final edge = random.nextInt(4);
-    return switch (edge) {
-      0 => Vector2(playfield.left - 32,
-          playfield.top + random.nextDouble() * playfield.height),
-      1 => Vector2(playfield.right + 32,
-          playfield.top + random.nextDouble() * playfield.height),
-      2 => Vector2(playfield.left + random.nextDouble() * playfield.width,
-          playfield.top - 32),
-      _ => Vector2(playfield.left + random.nextDouble() * playfield.width,
-          playfield.bottom + 32),
-    };
-  }
-
   void _notify() {
     _lastDisplayedScore = session.score;
     _lastShielded = session.hasShield;
     onSessionChanged(session);
   }
+}
+
+Vector2 fairEdgeSpawnPosition({
+  required PlayfieldBounds bounds,
+  required Vector2 playerPosition,
+  required Random random,
+}) {
+  Vector2 candidateFor(int edge) => switch (edge) {
+        0 => Vector2(
+            bounds.left - 32,
+            bounds.top + random.nextDouble() * bounds.height,
+          ),
+        1 => Vector2(
+            bounds.right + 32,
+            bounds.top + random.nextDouble() * bounds.height,
+          ),
+        2 => Vector2(
+            bounds.left + random.nextDouble() * bounds.width,
+            bounds.top - 32,
+          ),
+        _ => Vector2(
+            bounds.left + random.nextDouble() * bounds.width,
+            bounds.bottom + 32,
+          ),
+      };
+
+  for (var attempt = 0; attempt < 24; attempt++) {
+    final candidate = candidateFor(random.nextInt(4));
+    if (candidate.distanceTo(playerPosition) >=
+        GameplayConfig.minimumEnemySpawnDistance) {
+      return candidate;
+    }
+  }
+
+  final topLeft = Vector2(bounds.left, bounds.top - 32);
+  final topRight = Vector2(bounds.right, bounds.top - 32);
+  return topLeft.distanceTo(playerPosition) >=
+          topRight.distanceTo(playerPosition)
+      ? topLeft
+      : topRight;
 }

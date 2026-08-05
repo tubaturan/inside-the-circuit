@@ -9,11 +9,11 @@ void main() {
     final schedule = SpawnSchedule(random: Random(4));
     final difficulty = DifficultySnapshot.forLevel(0);
 
-    expect(schedule.update(.69, difficulty).enemy, isFalse);
+    expect(schedule.update(1.79, difficulty).enemy, isFalse);
     expect(schedule.update(.02, difficulty).enemy, isTrue);
 
     schedule.reset();
-    expect(schedule.update(.69, difficulty).enemy, isFalse);
+    expect(schedule.update(1.79, difficulty).enemy, isFalse);
     expect(schedule.update(.02, difficulty).enemy, isTrue);
   });
 
@@ -22,7 +22,7 @@ void main() {
     final difficulty = DifficultySnapshot.forLevel(0);
 
     final first = schedule.update(1.2, difficulty);
-    expect(first.enemy, isTrue);
+    expect(first.enemy, isFalse);
     expect(first.electron, isTrue);
     expect(first.capacitor, isFalse);
 

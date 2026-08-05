@@ -40,6 +40,12 @@ class PlayerSignal extends PositionComponent with CollisionCallbacks {
     final target = _target;
     if (target != null) {
       final clamped = bounds().clampCenter(target, size);
+      if (position.distanceTo(clamped) <=
+          GameplayConfig.playerArrivalTolerance) {
+        position = clamped;
+        _target = null;
+        return;
+      }
       final factor = 1 - math.exp(-GameplayConfig.playerFollowSpeed * dt);
       position += (clamped - position) * factor;
     }

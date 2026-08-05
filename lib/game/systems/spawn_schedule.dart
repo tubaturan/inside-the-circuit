@@ -19,12 +19,12 @@ class SpawnSchedule {
   SpawnSchedule({required this.random});
 
   final Random random;
-  double _enemyCountdown = .7;
+  double _enemyCountdown = GameplayConfig.initialEnemyDelay;
   double _electronCountdown = 1.2;
   double _capacitorCountdown = 7;
 
   void reset() {
-    _enemyCountdown = .7;
+    _enemyCountdown = GameplayConfig.initialEnemyDelay;
     _electronCountdown = 1.2;
     _capacitorCountdown = 7;
   }

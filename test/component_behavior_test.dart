@@ -2,6 +2,7 @@ import 'package:flame/components.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:inside_the_circuit/game/components/collection_particle.dart';
 import 'package:inside_the_circuit/game/components/hazards.dart';
+import 'package:inside_the_circuit/game/components/player_signal.dart';
 import 'package:inside_the_circuit/game/gameplay_config.dart';
 import 'package:inside_the_circuit/game/playfield_bounds.dart';
 
@@ -50,5 +51,18 @@ void main() {
     );
     burst.update(.4);
     expect(burst.isExpired, isTrue);
+  });
+
+  test('player moves toward an absolute touch target', () {
+    final player = PlayerSignal(
+      position: Vector2(200, 700),
+      bounds: bounds,
+      hasShield: () => false,
+      onHazardCollision: (_) {},
+    );
+    player.setTarget(Vector2(100, 400));
+    player.update(.1);
+    expect(player.position.x, lessThan(200));
+    expect(player.position.y, lessThan(700));
   });
 }
