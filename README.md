@@ -43,4 +43,9 @@ flutter build apk --release
 
 ## Platformlar
 
-Android ve iOS platform dosyaları mevcuttur. Android release build'i Gradle'ın loopback bağlantısına izin veren normal bir geliştirme ortamında; iOS build'i ise macOS/Xcode ortamında doğrulanmalıdır.
+Android, iOS ve web platform dosyaları mevcuttur.
+
+- Web release build'i başarıyla doğrulandı: `flutter build web --release`
+- Android release build'i yerel Windows ortamında başarıyla doğrulandı: `flutter build apk --release`
+- Doğrulanan Android APK çıktısı: `build/app/outputs/flutter-apk/app-release.apk` (19.5 MB)
+- iOS build'i Windows ortamında alınmadı; macOS ve Xcode ile doğrulanmalıdır.
