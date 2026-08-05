@@ -17,6 +17,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
   CircuitGame? _game;
   GamePhase _phase = GamePhase.mainMenu;
   int _score = 0;
+  int _difficultyLevel = 0;
   bool _shielded = false;
 
   @override
@@ -60,7 +61,12 @@ class _GameScreenState extends ConsumerState<GameScreen>
           children: [
             Positioned.fill(child: GameWidget(game: game)),
             if (_phase == GamePhase.playing)
-              _Hud(score: _score, shielded: _shielded, onPause: game.pauseGame),
+              _Hud(
+                score: _score,
+                difficultyLevel: _difficultyLevel,
+                shielded: _shielded,
+                onPause: game.pauseGame,
+              ),
             if (_phase == GamePhase.paused)
               _PauseOverlay(
                 onContinue: game.continueGame,
@@ -95,6 +101,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
     setState(() {
       _phase = session.phase;
       _score = session.score;
+      _difficultyLevel = session.difficultyLevel;
       _shielded = session.hasShield;
     });
   }
@@ -105,6 +112,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
       _game = null;
       _phase = GamePhase.mainMenu;
       _score = 0;
+      _difficultyLevel = 0;
       _shielded = false;
     });
   }
@@ -156,11 +164,12 @@ class _CircuitFrame extends StatelessWidget {
 }
 
 class _MainMenu extends StatelessWidget {
-  const _MainMenu(
-      {required this.highScore,
-      required this.soundEnabled,
-      required this.onSoundChanged,
-      required this.onStart});
+  const _MainMenu({
+    required this.highScore,
+    required this.soundEnabled,
+    required this.onSoundChanged,
+    required this.onStart,
+  });
   final int highScore;
   final bool soundEnabled;
   final ValueChanged<bool> onSoundChanged;
@@ -168,35 +177,98 @@ class _MainMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        backgroundColor: const Color(0xFF040914),
-        body: SafeArea(
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(mainAxisSize: MainAxisSize.min, children: [
-                const Icon(Icons.electric_bolt,
-                    size: 74, color: Color(0xFF39F5FF)),
-                const SizedBox(height: 16),
-                const Text('INSIDE THE CIRCUIT',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        fontSize: 32,
+        body: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [Color(0xFF102B3A), Color(0xFF040914)],
+            ),
+          ),
+          child: SafeArea(
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 440),
+                child: Padding(
+                  padding: const EdgeInsets.all(28),
+                  child: Column(mainAxisSize: MainAxisSize.min, children: [
+                    Container(
+                      width: 92,
+                      height: 92,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: const Color(0xFF39F5FF).withOpacity(.1),
+                        border: Border.all(
+                          color: const Color(0xFF39F5FF).withOpacity(.65),
+                          width: 2,
+                        ),
+                        boxShadow: const [
+                          BoxShadow(color: Color(0x6639F5FF), blurRadius: 28),
+                        ],
+                      ),
+                      child: const Icon(
+                        Icons.electric_bolt_rounded,
+                        size: 58,
+                        color: Color(0xFF39F5FF),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    const Text(
+                      'INSIDE THE\nCIRCUIT',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 34,
+                        height: .95,
                         fontWeight: FontWeight.w900,
-                        letterSpacing: 2)),
-                const SizedBox(height: 20),
-                Text('BEST SIGNAL  $highScore',
-                    style: const TextStyle(
-                        color: Color(0xFF39F5FF), fontSize: 18)),
-                const SizedBox(height: 28),
-                FilledButton(
-                    onPressed: onStart, child: const Text('START SYSTEM')),
-                const SizedBox(height: 16),
-                SwitchListTile.adaptive(
-                    value: soundEnabled,
-                    onChanged: onSoundChanged,
-                    title: const Text('Sound enabled'),
-                    contentPadding: EdgeInsets.zero),
-              ]),
+                        letterSpacing: 3,
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    const Text(
+                      'KEEP THE SIGNAL ALIVE',
+                      style: TextStyle(
+                        color: Color(0xFF8CA8B6),
+                        fontSize: 12,
+                        letterSpacing: 2.2,
+                      ),
+                    ),
+                    const SizedBox(height: 28),
+                    _StatusPill(
+                      icon: Icons.insights_rounded,
+                      label: 'BEST SIGNAL',
+                      value: '$highScore',
+                    ),
+                    const SizedBox(height: 22),
+                    _NeonButton(label: 'START SYSTEM', onPressed: onStart),
+                    const SizedBox(height: 12),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(.035),
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: SwitchListTile.adaptive(
+                        value: soundEnabled,
+                        onChanged: onSoundChanged,
+                        secondary: const Icon(Icons.volume_up_outlined),
+                        title: const Text('SYSTEM AUDIO'),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 18),
+                    const Text(
+                      'TAP OR DRAG TO MOVE  •  COLLECT ELECTRONS',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Color(0xFF637B88),
+                        fontSize: 10,
+                        letterSpacing: 1.1,
+                      ),
+                    ),
+                  ]),
+                ),
+              ),
             ),
           ),
         ),
@@ -204,28 +276,70 @@ class _MainMenu extends StatelessWidget {
 }
 
 class _Hud extends StatelessWidget {
-  const _Hud(
-      {required this.score, required this.shielded, required this.onPause});
+  const _Hud({
+    required this.score,
+    required this.difficultyLevel,
+    required this.shielded,
+    required this.onPause,
+  });
   final int score;
+  final int difficultyLevel;
   final bool shielded;
   final VoidCallback onPause;
+
   @override
-  Widget build(BuildContext context) => SafeArea(
-        child: SizedBox(
-            height: 70,
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.fromLTRB(12, 10, 12, 0),
+        child: Align(
+          alignment: Alignment.topCenter,
+          child: Container(
+            height: 56,
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            decoration: BoxDecoration(
+              color: const Color(0xE6101824),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: const Color(0x4439F5FF)),
+            ),
             child: Row(children: [
-              const SizedBox(width: 16),
-              Text('SIGNAL $score',
-                  style: const TextStyle(
-                      fontSize: 19, fontWeight: FontWeight.bold)),
-              if (shielded)
-                const Padding(
-                    padding: EdgeInsets.only(left: 14),
-                    child: Icon(Icons.shield, color: Color(0xFF39F5FF))),
+              const Icon(Icons.bolt_rounded, color: Color(0xFF39F5FF)),
+              const SizedBox(width: 6),
+              Text(
+                '$score',
+                style: const TextStyle(
+                  fontSize: 21,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 1,
+                ),
+              ),
+              const SizedBox(width: 14),
+              Text(
+                'LEVEL ${difficultyLevel + 1}',
+                style: const TextStyle(
+                  color: Color(0xFF91A8B3),
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 1.1,
+                ),
+              ),
               const Spacer(),
-              IconButton(onPressed: onPause, icon: const Icon(Icons.pause)),
-              const SizedBox(width: 8),
-            ])),
+              AnimatedOpacity(
+                opacity: shielded ? 1 : .18,
+                duration: const Duration(milliseconds: 180),
+                child: const Icon(
+                  Icons.shield_rounded,
+                  color: Color(0xFF39F5FF),
+                  size: 21,
+                ),
+              ),
+              const SizedBox(width: 6),
+              IconButton(
+                tooltip: 'Pause',
+                onPressed: onPause,
+                icon: const Icon(Icons.pause_rounded),
+              ),
+            ]),
+          ),
+        ),
       );
 }
 
@@ -236,7 +350,7 @@ class _PauseOverlay extends StatelessWidget {
   @override
   Widget build(BuildContext context) =>
       _Panel(title: 'SYSTEM PAUSED', children: [
-        FilledButton(onPressed: onContinue, child: const Text('CONTINUE')),
+        _NeonButton(label: 'CONTINUE', onPressed: onContinue),
         TextButton(onPressed: onMenu, child: const Text('MAIN MENU')),
       ]);
 }
@@ -253,10 +367,14 @@ class _GameOverOverlay extends StatelessWidget {
   final VoidCallback onMenu;
   @override
   Widget build(BuildContext context) => _Panel(title: 'SIGNAL LOST', children: [
-        Text('SCORE  $score'),
-        Text('BEST SIGNAL  $highScore'),
+        _StatusPill(icon: Icons.bolt_rounded, label: 'SCORE', value: '$score'),
+        _StatusPill(
+          icon: Icons.insights_rounded,
+          label: 'BEST SIGNAL',
+          value: '$highScore',
+        ),
         const SizedBox(height: 12),
-        FilledButton(onPressed: onRestart, child: const Text('REBOOT SYSTEM')),
+        _NeonButton(label: 'REBOOT SYSTEM', onPressed: onRestart),
         TextButton(onPressed: onMenu, child: const Text('MAIN MENU')),
       ]);
 }
@@ -267,22 +385,115 @@ class _Panel extends StatelessWidget {
   final List<Widget> children;
   @override
   Widget build(BuildContext context) => ColoredBox(
-        color: const Color(0xDD040914),
+        color: const Color(0xE6040914),
         child: Center(
-            child: Card(
-                child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 38, vertical: 28),
-          child: Column(mainAxisSize: MainAxisSize.min, children: [
-            Text(title,
-                style: const TextStyle(
+          child: TweenAnimationBuilder<double>(
+            tween: Tween(begin: .92, end: 1),
+            duration: const Duration(milliseconds: 240),
+            curve: Curves.easeOutBack,
+            builder: (context, scale, child) => Transform.scale(
+              scale: scale,
+              child: child,
+            ),
+            child: Container(
+              constraints: const BoxConstraints(maxWidth: 360),
+              margin: const EdgeInsets.all(24),
+              padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 28),
+              decoration: BoxDecoration(
+                color: const Color(0xFF101824),
+                borderRadius: BorderRadius.circular(22),
+                border: Border.all(color: const Color(0x6639F5FF)),
+                boxShadow: const [
+                  BoxShadow(color: Color(0x5539F5FF), blurRadius: 28),
+                ],
+              ),
+              child: Column(mainAxisSize: MainAxisSize.min, children: [
+                Text(
+                  title,
+                  style: const TextStyle(
                     fontSize: 26,
                     fontWeight: FontWeight.w900,
-                    color: Color(0xFFFF5C4D))),
-            const SizedBox(height: 20),
-            ...children.map((child) => Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4),
-                child: child)),
-          ]),
-        ))),
+                    letterSpacing: 2,
+                    color: Color(0xFFFF5C4D),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                ...children.map(
+                  (child) => Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 5),
+                    child: child,
+                  ),
+                ),
+              ]),
+            ),
+          ),
+        ),
+      );
+}
+
+class _NeonButton extends StatelessWidget {
+  const _NeonButton({required this.label, required this.onPressed});
+
+  final String label;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) => SizedBox(
+        width: double.infinity,
+        child: FilledButton(
+          onPressed: onPressed,
+          style: FilledButton.styleFrom(
+            backgroundColor: const Color(0xFF39F5FF),
+            foregroundColor: const Color(0xFF031014),
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
+            textStyle: const TextStyle(
+              fontWeight: FontWeight.w900,
+              letterSpacing: 1.5,
+            ),
+          ),
+          child: Text(label),
+        ),
+      );
+}
+
+class _StatusPill extends StatelessWidget {
+  const _StatusPill({
+    required this.icon,
+    required this.label,
+    required this.value,
+  });
+
+  final IconData icon;
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: const Color(0xFF39F5FF).withOpacity(.07),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: const Color(0x4439F5FF)),
+        ),
+        child: Row(mainAxisSize: MainAxisSize.min, children: [
+          Icon(icon, color: const Color(0xFF39F5FF), size: 19),
+          const SizedBox(width: 9),
+          Text(
+            label,
+            style: const TextStyle(
+              color: Color(0xFF91A8B3),
+              fontSize: 11,
+              letterSpacing: 1.1,
+            ),
+          ),
+          const SizedBox(width: 14),
+          Text(
+            value,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
+          ),
+        ]),
       );
 }

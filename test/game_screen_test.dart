@@ -17,14 +17,15 @@ void main() {
     await tester.pumpWidget(const ProviderScope(child: InsideCircuitApp()));
     await tester.pump();
 
-    expect(find.text('INSIDE THE CIRCUIT'), findsOneWidget);
+    expect(find.text('INSIDE THE\nCIRCUIT'), findsOneWidget);
     expect(find.text('START SYSTEM'), findsOneWidget);
 
     await tester.tap(find.text('START SYSTEM'));
     await tester.pump();
 
     expect(find.byType(GameWidget<CircuitGame>), findsOneWidget);
-    expect(find.text('SIGNAL 0'), findsOneWidget);
+    expect(find.text('0'), findsOneWidget);
+    expect(find.text('LEVEL 1'), findsOneWidget);
     expect(
       tester.getSize(find.byType(GameWidget<CircuitGame>)).width,
       closeTo(520, 2),
