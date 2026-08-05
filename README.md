@@ -23,7 +23,7 @@ floor(survivalSeconds) + electronCount * 10
 - `lib/services`: Kalıcı ayarlar ve Flame Audio tabanlı ses servisi.
 - `lib/game/gameplay_config.dart`: Bütün gameplay tuning değerlerinin tek kaynağı.
 
-Gameplay zamanlaması Flame `update(dt)` döngüsünde yürütülür. Flutter `Timer` kullanılmaz. Görseller programatik hazırlanmıştır. Kısa ses efektleri proje için özgün olarak sentezlenmiş ve Flame Audio ile preload edilmiştir; desteklenmeyen bir audio backend gameplay'i durdurmaz.
+Gameplay zamanlaması Flame `update(dt)` döngüsünde yürütülür. Flutter `Timer` kullanılmaz. Görseller programatik hazırlanmıştır. Kısa ses efektleri ve döngüsel arka plan müziği proje için özgün olarak sentezlenmiş ve Flame Audio ile preload edilmiştir; desteklenmeyen bir audio backend gameplay'i durdurmaz.
 
 ## Çalıştırma
 

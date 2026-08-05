@@ -56,6 +56,7 @@ class CircuitGame extends FlameGame with HasCollisionDetection, PanDetector {
     await add(CircuitBackground(gameSize: () => size));
     _startFreshSession();
     _play(GameSound.gameStart);
+    _startMusic();
   }
 
   @override
@@ -125,11 +126,13 @@ class CircuitGame extends FlameGame with HasCollisionDetection, PanDetector {
     resumeEngine();
     _startFreshSession();
     _play(GameSound.gameStart);
+    _startMusic();
   }
 
   void pauseGame() {
     if (session.phase != GamePhase.playing) return;
     session.phase = GamePhase.paused;
+    audioManager.pauseMusic();
     pauseEngine();
     _notify();
   }
@@ -137,6 +140,7 @@ class CircuitGame extends FlameGame with HasCollisionDetection, PanDetector {
   void continueGame() {
     if (session.phase != GamePhase.paused) return;
     session.phase = GamePhase.playing;
+    if (soundEnabled()) audioManager.resumeMusic();
     resumeEngine();
     _notify();
   }
@@ -144,6 +148,7 @@ class CircuitGame extends FlameGame with HasCollisionDetection, PanDetector {
   void returnToMenu() {
     _clearGameplayComponents();
     session.reset(nextPhase: GamePhase.mainMenu);
+    audioManager.stopMusic();
     pauseEngine();
     _notify();
   }
@@ -192,6 +197,7 @@ class CircuitGame extends FlameGame with HasCollisionDetection, PanDetector {
       return;
     }
     session.phase = GamePhase.gameOver;
+    audioManager.stopMusic();
     _play(GameSound.gameOver);
     pauseEngine();
     _notify();
@@ -280,6 +286,10 @@ class CircuitGame extends FlameGame with HasCollisionDetection, PanDetector {
 
   void _play(GameSound sound) {
     if (soundEnabled()) audioManager.play(sound);
+  }
+
+  void _startMusic() {
+    if (soundEnabled()) audioManager.startMusic();
   }
 }
 

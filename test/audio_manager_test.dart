@@ -9,5 +9,9 @@ void main() {
     for (final sound in GameSound.values) {
       manager.play(sound);
     }
+    manager.startMusic();
+    manager.pauseMusic();
+    manager.resumeMusic();
+    manager.stopMusic();
   });
 }

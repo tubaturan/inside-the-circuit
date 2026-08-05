@@ -24,7 +24,7 @@
 - [x] Main Menu and new game use one central session reset path for gameplay components and state.
 - [x] High score and sound preference survive session resets through SharedPreferences.
 - [x] Riverpod owns UI-facing high score and sound preference state.
-- [x] Audio calls use a small service interface; six original effects are preloaded and failures never interrupt gameplay.
+- [x] Audio uses a small service interface; six effects and one background loop are preloaded and failures never interrupt gameplay.
 
 ## Presentation and performance
 
