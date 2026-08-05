@@ -22,8 +22,6 @@ abstract interface class AudioManager {
   void stopMusic();
 }
 
-/// Keeps gameplay audio calls safe until licensed sound assets are added.
-/// No audio dependency is needed while this implementation is in use.
 class SilentAudioManager implements AudioManager {
   const SilentAudioManager();
 
@@ -75,9 +73,7 @@ class FlameGameAudioManager implements AudioManager {
         ..._assets.values,
         _musicAsset,
       ]);
-    } catch (_) {
-      // A missing audio backend must not prevent the game from loading.
-    }
+    } catch (_) {}
   }
 
   @override
@@ -108,9 +104,7 @@ class FlameGameAudioManager implements AudioManager {
   Future<void> _playSafely(String asset, double volume) async {
     try {
       await FlameAudio.play(asset, volume: volume);
-    } catch (_) {
-      // Audio must never interrupt gameplay on an unsupported device.
-    }
+    } catch (_) {}
   }
 
   Future<void> _startMusicSafely() async {
@@ -120,16 +114,12 @@ class FlameGameAudioManager implements AudioManager {
         _bgmInitialized = true;
       }
       await FlameAudio.bgm.play(_musicAsset, volume: .11);
-    } catch (_) {
-      // Music support is optional on the active platform.
-    }
+    } catch (_) {}
   }
 
   Future<void> _runSafely(Future<void> Function() operation) async {
     try {
       await operation();
-    } catch (_) {
-      // Music support is optional on the active platform.
-    }
+    } catch (_) {}
   }
 }

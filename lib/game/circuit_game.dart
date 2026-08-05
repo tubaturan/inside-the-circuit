@@ -112,9 +112,7 @@ class CircuitGame extends FlameGame with HasCollisionDetection, PanDetector {
   }
 
   @override
-  void onPanEnd(DragEndInfo info) {
-    // Keep the last target so a quick tap is enough to dodge.
-  }
+  void onPanEnd(DragEndInfo info) {}
 
   @override
   void onPanCancel() {
