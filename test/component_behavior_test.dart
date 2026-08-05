@@ -1,6 +1,7 @@
 import 'package:flame/components.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:inside_the_circuit/game/components/collection_particle.dart';
+import 'package:inside_the_circuit/game/components/difficulty_pulse.dart';
 import 'package:inside_the_circuit/game/components/hazards.dart';
 import 'package:inside_the_circuit/game/components/player_signal.dart';
 import 'package:inside_the_circuit/game/gameplay_config.dart';
@@ -51,6 +52,17 @@ void main() {
     );
     burst.update(.4);
     expect(burst.isExpired, isTrue);
+  });
+
+  test('difficulty pulse expires on Flame update time', () {
+    final pulse = DifficultyPulse(
+      level: 2,
+      gameSize: () => Vector2(400, 800),
+    );
+
+    pulse.update(GameplayConfig.difficultyPulseDuration);
+
+    expect(pulse.isExpired, isTrue);
   });
 
   test('player moves toward an absolute touch target', () {

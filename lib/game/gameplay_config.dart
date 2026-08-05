@@ -18,6 +18,7 @@ abstract final class GameplayConfig {
   static const double collectibleExpiryWarning = 2;
 
   static const double difficultyPeriod = 15;
+  static const double difficultyPulseDuration = 1.8;
   static const int initialEnemyLimit = 4;
   static const int maximumEnemyLimit = 12;
   static const double initialEnemyInterval = 1.35;

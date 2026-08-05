@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:inside_the_circuit/game/components/circuit_background.dart';
 import 'package:inside_the_circuit/game/components/collection_particle.dart';
 import 'package:inside_the_circuit/game/components/collectibles.dart';
+import 'package:inside_the_circuit/game/components/difficulty_pulse.dart';
 import 'package:inside_the_circuit/game/components/hazards.dart';
 import 'package:inside_the_circuit/game/components/player_signal.dart';
 import 'package:inside_the_circuit/game/game_session.dart';
@@ -36,6 +37,7 @@ class CircuitGame extends FlameGame with HasCollisionDetection, PanDetector {
   PlayerSignal? _player;
   int _lastDisplayedScore = -1;
   bool _lastShielded = false;
+  int _lastAnnouncedDifficulty = 1;
 
   PlayfieldBounds get playfield => PlayfieldBounds.fromGameSize(size);
   Iterable<Hazard> get hazards => children.whereType<Hazard>();
@@ -60,6 +62,10 @@ class CircuitGame extends FlameGame with HasCollisionDetection, PanDetector {
 
     session.update(dt);
     final difficulty = DifficultySnapshot.forLevel(session.difficultyLevel);
+    if (difficulty.level > _lastAnnouncedDifficulty) {
+      _lastAnnouncedDifficulty = difficulty.level;
+      add(DifficultyPulse(level: difficulty.level, gameSize: () => size));
+    }
     final spawn = _spawnSchedule.update(dt, difficulty);
 
     if (spawn.enemy) {
@@ -139,6 +145,7 @@ class CircuitGame extends FlameGame with HasCollisionDetection, PanDetector {
   void _startFreshSession() {
     _clearGameplayComponents();
     session.reset();
+    _lastAnnouncedDifficulty = session.difficultyLevel;
     _spawnSchedule.reset();
     final player = PlayerSignal(
       position:
@@ -153,7 +160,10 @@ class CircuitGame extends FlameGame with HasCollisionDetection, PanDetector {
   }
 
   void _clearGameplayComponents() {
-    final effects = children.whereType<CollectionBurst>();
+    final effects = children.where(
+      (component) =>
+          component is CollectionBurst || component is DifficultyPulse,
+    );
     for (final component in [...hazards, ...collectibles, ...effects]) {
       component.removeFromParent();
     }
