@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "com.tuba.inside_the_circuit"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 35
     ndkVersion = flutter.ndkVersion
 
     compileOptions {

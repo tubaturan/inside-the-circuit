@@ -51,5 +51,5 @@
 
 - [x] Web release build verified with `flutter build web --release`.
 - [x] Android release build verified locally with `flutter build apk --release`.
-- [x] Android APK produced at `build/app/outputs/flutter-apk/app-release.apk` (19.5 MB).
+- [x] Audio-enabled Android APK produced at `build/app/outputs/flutter-apk/app-release.apk` (20.9 MB).
 - [ ] iOS build requires final verification on macOS with Xcode; it was not claimed as successful on Windows.
