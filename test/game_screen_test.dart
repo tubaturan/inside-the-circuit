@@ -24,7 +24,7 @@ void main() {
     await tester.pump();
 
     expect(find.byType(GameWidget<CircuitGame>), findsOneWidget);
-    expect(find.text('0'), findsOneWidget);
+    expect(find.text('0'), findsNWidgets(2));
     expect(find.text('LEVEL 1'), findsOneWidget);
     expect(
       tester.getSize(find.byType(GameWidget<CircuitGame>)).width,
@@ -52,5 +52,18 @@ void main() {
     await tester.tap(find.text('CONTINUE'));
     await tester.pump();
     expect(find.text('SYSTEM PAUSED'), findsNothing);
+  });
+
+  testWidgets('gameplay HUD fits a narrow mobile viewport', (tester) async {
+    await tester.binding.setSurfaceSize(const Size(320, 640));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    await tester.pumpWidget(const ProviderScope(child: InsideCircuitApp()));
+    await tester.pump();
+
+    await tester.tap(find.text('START SYSTEM'));
+    await tester.pump();
+
+    expect(find.byType(GameWidget<CircuitGame>), findsOneWidget);
+    expect(tester.takeException(), isNull);
   });
 }

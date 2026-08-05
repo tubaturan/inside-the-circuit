@@ -17,8 +17,10 @@ class _GameScreenState extends ConsumerState<GameScreen>
   CircuitGame? _game;
   GamePhase _phase = GamePhase.mainMenu;
   int _score = 0;
+  int _electronCount = 0;
   int _difficultyLevel = 0;
   bool _shielded = false;
+  int _shieldSeconds = 0;
 
   @override
   void initState() {
@@ -63,8 +65,10 @@ class _GameScreenState extends ConsumerState<GameScreen>
             if (_phase == GamePhase.playing)
               _Hud(
                 score: _score,
+                electronCount: _electronCount,
                 difficultyLevel: _difficultyLevel,
                 shielded: _shielded,
+                shieldSeconds: _shieldSeconds,
                 onPause: game.pauseGame,
               ),
             if (_phase == GamePhase.paused)
@@ -102,8 +106,10 @@ class _GameScreenState extends ConsumerState<GameScreen>
     setState(() {
       _phase = session.phase;
       _score = session.score;
+      _electronCount = session.electronCount;
       _difficultyLevel = session.difficultyLevel;
       _shielded = session.hasShield;
+      _shieldSeconds = session.shieldRemaining.ceil();
     });
   }
 
@@ -113,8 +119,10 @@ class _GameScreenState extends ConsumerState<GameScreen>
       _game = null;
       _phase = GamePhase.mainMenu;
       _score = 0;
+      _electronCount = 0;
       _difficultyLevel = 0;
       _shielded = false;
+      _shieldSeconds = 0;
     });
   }
 }
@@ -279,13 +287,17 @@ class _MainMenu extends StatelessWidget {
 class _Hud extends StatelessWidget {
   const _Hud({
     required this.score,
+    required this.electronCount,
     required this.difficultyLevel,
     required this.shielded,
+    required this.shieldSeconds,
     required this.onPause,
   });
   final int score;
+  final int electronCount;
   final int difficultyLevel;
   final bool shielded;
+  final int shieldSeconds;
   final VoidCallback onPause;
 
   @override
@@ -312,7 +324,7 @@ class _Hud extends StatelessWidget {
                   letterSpacing: 1,
                 ),
               ),
-              const SizedBox(width: 14),
+              const SizedBox(width: 10),
               Text(
                 'LEVEL ${difficultyLevel + 1}',
                 style: const TextStyle(
@@ -323,16 +335,45 @@ class _Hud extends StatelessWidget {
                 ),
               ),
               const Spacer(),
+              const Icon(
+                Icons.circle,
+                color: Color(0xFF39F5FF),
+                size: 12,
+              ),
+              const SizedBox(width: 4),
+              Text(
+                '$electronCount',
+                style: const TextStyle(
+                  color: Color(0xFFBCEEF2),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              const SizedBox(width: 10),
               AnimatedOpacity(
                 opacity: shielded ? 1 : .18,
                 duration: const Duration(milliseconds: 180),
-                child: const Icon(
-                  Icons.shield_rounded,
-                  color: Color(0xFF39F5FF),
-                  size: 21,
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.shield_rounded,
+                      color: Color(0xFF39F5FF),
+                      size: 21,
+                    ),
+                    if (shielded) ...[
+                      const SizedBox(width: 3),
+                      Text(
+                        '${shieldSeconds}s',
+                        style: const TextStyle(
+                          color: Color(0xFFB7FF5A),
+                          fontSize: 11,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
               ),
-              const SizedBox(width: 6),
               IconButton(
                 tooltip: 'Pause',
                 onPressed: onPause,

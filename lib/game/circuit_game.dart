@@ -36,7 +36,9 @@ class CircuitGame extends FlameGame with HasCollisionDetection, PanDetector {
 
   PlayerSignal? _player;
   int _lastDisplayedScore = -1;
+  int _lastElectronCount = -1;
   bool _lastShielded = false;
+  int _lastShieldSeconds = -1;
   int _lastAnnouncedDifficulty = 1;
 
   PlayfieldBounds get playfield => PlayfieldBounds.fromGameSize(size);
@@ -85,7 +87,9 @@ class CircuitGame extends FlameGame with HasCollisionDetection, PanDetector {
     }
 
     if (session.score != _lastDisplayedScore ||
-        session.hasShield != _lastShielded) {
+        session.electronCount != _lastElectronCount ||
+        session.hasShield != _lastShielded ||
+        session.shieldRemaining.ceil() != _lastShieldSeconds) {
       _notify();
     }
   }
@@ -266,7 +270,9 @@ class CircuitGame extends FlameGame with HasCollisionDetection, PanDetector {
 
   void _notify() {
     _lastDisplayedScore = session.score;
+    _lastElectronCount = session.electronCount;
     _lastShielded = session.hasShield;
+    _lastShieldSeconds = session.shieldRemaining.ceil();
     onSessionChanged(session);
   }
 
