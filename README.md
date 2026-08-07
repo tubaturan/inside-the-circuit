@@ -50,5 +50,5 @@ Android, iOS ve web platform dosyaları mevcuttur.
 
 - Web release build'i başarıyla doğrulandı: `flutter build web --release`
 - Android release build'i yerel Windows ortamında başarıyla doğrulandı: `flutter build apk --release`
-- Doğrulanan sesli Android APK çıktısı: `build/app/outputs/flutter-apk/app-release.apk` (20.9 MB)
+- Doğrulanan sesli Android APK çıktısı: `build/app/outputs/flutter-apk/app-release.apk` (21.1 MB)
 - iOS build'i Windows ortamında alınmadı; macOS ve Xcode ile doğrulanmalıdır.
